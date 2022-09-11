@@ -507,6 +507,22 @@
 
 &usbhsehci {
 	phys = <&hsusb1_phy>;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	hub@1 {
+		compatible = "usb424,9514";
+		reg = <1>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ethernet: ethernet@1 {
+			compatible = "usb424,ec00";
+			mac-address = [ 3a 6e 63 0c 19 ce ];
+			reg = <1>;
+		};
+	};
 };
 
 &dss {
