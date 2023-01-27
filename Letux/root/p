@@ -1,0 +1,43 @@
+# simple "play" auf PandaES
+# vorher sollte evtl. einmal ./twl gelaufen sein damit die Mixer eingestellt sind
+
+for C in PandaBoardES omap5uevm Pyra L15
+do
+	CARD=$(./findsoundcard $C)
+	[ "$CARD" ] && break
+done
+
+DEV=11
+
+[ "$1" == "-s" ] && { STRACE=strace ; shift ; }
+[ "$1" ] && DEV="$1"	# 2 is doing something
+
+if [ ! "$CARD" ]
+then
+	echo Unknown Sound Card
+	exit 1
+fi
+
+amixer -c $CARD cset name='Headset Left Playback' 1
+amixer -c $CARD cset name='Headset Right Playback' 1
+amixer -c $CARD cset name='Headset Playback Volume' 12
+amixer -c $CARD cset name='DL1 PDM Switch' 1
+amixer -c $CARD cset name='Sidetone Mixer Playback' 1
+amixer -c $CARD cset name='SDT DL Volume' 120
+amixer -c $CARD cset name='DL1 Mixer Multimedia' 1
+amixer -c $CARD cset name='DL1 Media Playback Volume' 110
+amixer -c $CARD sset 'Analog Left',0 'Aux/FM Left'
+amixer -c $CARD sset 'Analog Right',0 'Aux/FM Right'
+amixer -c $CARD sset 'Aux FM',0 7
+amixer -c $CARD sset 'AUDUL Media',0 149
+amixer -c $CARD sset 'Capture',0 4
+amixer -c $CARD sset 'MUX_UL00,0' AMic0
+amixer -c $CARD sset 'MUX_UL01,0' AMic1
+amixer -c $CARD sset 'AMIC UL',0 120
+
+if [ "$STRACE" ]
+then
+	AUDIODEV=hw:$CARD,$DEV strace play -v 0.98 testmp3.mp3 remix 1 2 1 2 2>$DEV.out
+else
+	AUDIODEV=hw:$CARD,$DEV play -v 0.98 testmp3.mp3 remix 1 2 1 2
+fi
