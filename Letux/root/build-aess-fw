@@ -40,6 +40,13 @@ echo "+++ make sure we have the audio firmware tools"
 ( gitfetch "--depth 1 -b peter/bnw https://github.com/omap-audio/abefw.git" $DEST/abefw && [ -r "$DEST/abefw" ] ) || exit 1
 ( gitfetch "--depth 1 -b master https://github.com/omap-audio/audio-test.git" $DEST/audio-test && [ -r "$DEST/audio-test" ] ) || exit 1
 
+# patches
+
+echo "+++ patch asoc-fw for newer gcc versions"
+
+sed -i.bak 's/__attribute__((const, noreturn))/__attribute__((const))/' $DEST/asoc-fw/src/socfw.h
+sed -i.bak 's/-Wall -Werror -D/-Wall -Werror -Wno-error=stringop-truncation -D/' $DEST/asoc-fw/src/Makefile.am
+
 #
 # build firmware tools and firmware
 #
