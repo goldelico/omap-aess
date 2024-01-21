@@ -776,8 +776,18 @@ static void smsc95xx_init_mac_address(struct usbnet *dev)
 	}
 
 	/* no eeprom, or eeprom values are invalid. generate random MAC */
+#if 0
 	eth_hw_addr_random(dev->net);
 	netif_dbg(dev, ifup, dev->net, "MAC address set to eth_random_addr\n");
+#else
+	dev->net->dev_addr[0] = 0x3a;
+	dev->net->dev_addr[1] = 0x6e;
+	dev->net->dev_addr[2] = 0x63;
+	dev->net->dev_addr[3] = 0x0c;
+	dev->net->dev_addr[4] = 0x19;
+	dev->net->dev_addr[5] = 0xce;
+	dev->net->addr_assign_type = NET_ADDR_RANDOM;	/* it's not true but pretend */
+#endif
 }
 
 static int smsc95xx_set_mac_address(struct usbnet *dev)
@@ -1128,6 +1138,9 @@ static int smsc95xx_bind(struct usbnet *dev, struct usb_interface *intf)
 		dev->net->features |= NETIF_F_RXCSUM;
 
 	dev->net->hw_features = NETIF_F_HW_CSUM | NETIF_F_RXCSUM;
+
+// could try to use const void *of_get_mac_address(struct device_node *np)
+// but how do we get the np?
 
 	smsc95xx_init_mac_address(dev);
 
